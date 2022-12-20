@@ -7,30 +7,41 @@ import java.util.Scanner;
 public class Main {
     public static void main(String[] args) {
         AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
-        Cart cart = context.getBean(Cart.class);
-        System.out.println("Here's the list of our products:");
-        cart.getList();
-        System.out.println("Please, type 'add', space and the number of a product you want to add to your cart.");
-        System.out.println("To remove a product you can type 'remove' followed by space and the number of the product you want to remove for the cart.");
-        System.out.println("Type 'view' to view the contents of your cart.");
-        System.out.println("Type 'exit' to leave.");
+        ProductDao productDao = context.getBean(ProductDao.class);
+        CustomerDao customerDao = context.getBean(CustomerDao.class);
+        System.out.println("Customer list:");
+        System.out.println(customerDao.findAll());
+        System.out.println();
+        System.out.println("Product list:");
+        System.out.println(productDao.findAll());
+        System.out.println();
 
         Scanner sc = new Scanner(System.in);
         while (true) {
-            String input = sc.nextLine();
-            String[] token = input.split(" ");
+            System.out.println("Type 'C', space and a customer number for info");
+            System.out.println("Type 'P', space and a product number for info");
+            System.out.println("Type 'CP', space and a customer number for this customer purchases");
+            System.out.println("Type 'PC', space and a product number for this product buyers");
+            String in = sc.nextLine();
+            String[] token = in.split(" ");
             try {
-                switch (token[0]) {
-                    case "add" -> cart.addToCart(Integer.valueOf(token[1]));
-                    case "remove" -> cart.removeFromCart(Integer.valueOf(token[1]));
-                    case "view" -> cart.getCart();
+                if (token[0].equals("C")) {
+                    System.out.println(customerDao.findById(Integer.parseInt(token[1])));
                 }
-            } catch (NumberFormatException n) {
-                cart.getCart();
+                if (token[0].equals("P")) {
+                    System.out.println(productDao.findById(Integer.parseInt(token[1])));
+                }
+                if (token[0].equals("CP")) {
+                    customerDao.getProductsByCustomersId(Integer.parseInt(token[1]));
+                }
+                if (token[0].equals("PC")) {
+                    productDao.getCustomersByProductsId(Integer.parseInt(token[1]));
+                }
+                } catch (Exception i) {
+                System.out.println("No such customer or product");
             }
             if (token[0].equals("break")) break;
         }
-
         sc.close();
         context.close();
     }
